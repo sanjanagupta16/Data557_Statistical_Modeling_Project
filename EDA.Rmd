@@ -8,6 +8,7 @@ library(ggplot2)
 library(knitr)
 library(tidyverse)
 library(dplyr)
+library(kableExtra)
 ```
 
 Loading Data
@@ -69,7 +70,8 @@ Relationship Quality
 glimpse(df$RELATIONSHIP_QUALITY)
 
 summary(df$RELATIONSHIP_QUALITY)
-ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar()
+
+ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") 
 
 NA %in% df$RELATIONSHIP_QUALITY
 sum(is.na(df$RELATIONSHIP_QUALITY))
@@ -78,7 +80,22 @@ sum(is.na(df$RELATIONSHIP_QUALITY))
 df[!is.na(df$RELATIONSHIP_QUALITY), ]
 na.omit(df, cols = 'RELATIONSHIP_QUALITY')
 
-ggplot(df, aes(df$RELATIONSHIP_QUALITY)) + geom_bar()
+ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") 
 ```
 
+Current Employment Status
+```{r}
+table(df$PPWORK)
+
+ggplot(df, aes(PPWORK)) + geom_bar() + theme_bw() + xlab("Current Employment Status") + ylab("Count") + theme(legend.position = "bottom") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+GLB Status
+```{r}
+table(df$PAPGLB_STATUS)
+
+ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("GLB Status") + ylab("Count") + theme(legend.position = "bottom")
+
+```
 
