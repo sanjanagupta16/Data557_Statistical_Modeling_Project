@@ -2,7 +2,7 @@
 
 This is the project for the DATA 557 - Applied Statistics and Experimental Design course at University of Washington, Seattle.
 
-Group: Sanjana Gupta, Natasha Halfin, Andreia Sodre Nichols, Karl Stavem, and Maggie Weatherly
+Group Members: Sanjana Gupta, Natasha Halfin, Andreia Sodre Nichols, Karl Stavem, and Maggie Weatherly
 
 Romantic relationships are ubiquitous in human life. In Western culture, monogamous relationships and marriage are seen as the norm. However, a commonly shared statistic is that 50% of marriages end in divorce. Hence, the question: what makes relationships successful? What features are highly correlated with long-lasting relationships? 
 
