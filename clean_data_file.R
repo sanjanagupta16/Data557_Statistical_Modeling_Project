@@ -14,239 +14,44 @@ df <- da30103.0001
 # look at column names
 names(df)
 
-# create a list of columsns to keep/drop
-# drops <- c(
-# DF[ , !(names(DF) %in% drops)]
-
-keeps <- c('CASEID_NEW',
-           'PPEDUC',
-           'PPEDUCAT',
-           'PPETHM',
-           'PPHHHEAD',
-           'PPINCIMP',
-           'HHINC',
-           'PPMARIT',
-           'PPQ14ARACE',
-           'PPHISPAN',
-           'PPRACE_WHITE',
-           'PPRACE_BLACK',
-           'PPRACE_NATIVEAMERICAN',
-           'PPRACE_ASIANINDIAN',
-           'PPRACE_CHINESE',
-           'PPRACE_FILIPINO',
-           'PPRACE_JAPANESE',
-           'PPRACE_KOREAN',
-           'PPRACE_VIETNAMESE',
-           'PPRACE_OTHERASIAN',
-           'PPRACE_HAWAIIAN',
-           'PPRACE_GUAMANIAN',
-           'PPRACE_SAMOAN',
-           'PPRACE_OTHERPACIFICISLANDER',
-           'PPRACE_SOMEOTHERRACE',
-           'PPPPCMDATE_YRMO',
-           'PPPADATE_YRMO',
-           'PPHHCOMP11_MEMBER2_RELATIONSHIP',
-           'HCMST_MAIN_INTERVIEW_YRMO',
-           'QFLAG',
-           'S1',
-           'S2',
-           'Q6A',
-           'Q6B',
-           'Q10',
-           'Q22',
-           'Q23',
-           'Q31_2',
-           'Q33_4',
-           'Q34',
-           'Q35_CODES',
-           'Q35_TEXT_ENTERED',
-           'MARRYNOTREALLY',
-           'CIVILNOTREALLY',
-           'PARTNER_DECEASED',
-           'HOW_LONG_AGO_FIRST_MET',
-           'HOW_LONG_AGO_FIRST_ROMANTIC',
-           'HOW_LONG_RELATIONSHIP',
+keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc, first demographic survey
+           'PARTNER_YRSED',   #Partner yrs education based on q10
+           'PPINCIMP',        #Binned - total combined household income
+           'PPWORK',          #employment
+           'QFLAG',           # does person have a partner?
+           'PAPGLB_STATUS',   #(gay, lesbian, or bisexual)
+           'PPMARIT',         # marital status
+           'PPGENDER',        # gender
+           'Q4',              #( is partner female or male) 
+           'Q5',              #(is partner same gender)
+           'Q23',             # between you and [partner_name], who earned more income in 2008
+           'PPETHM',          # race/ethnicity
+           'Q6B',             # race of partner
            'RESPONDENT_RACE',
            'PARTNER_RACE',
-           'MARRIED',
-           'RESPONDENT_YRSED',
-           'PARTNER_YRSED',
-           'RELATIONSHIP_QUALITY',
-           'PP2_AFTERP1',
-           'PP2_PPHHHEAD',
-           'PP2_PPINCIMP',
-           'PP2_PPMARIT',
-           'PP2_PPEDUC',
-           'PP2_PPEDUCAT',
-           'PP2_RESPONDENT_YRSED',
-           'PP2_PPETHM',
-           'PP2_PPCMDATE_YRMO',
-           'PP2_IEDUC2',
-           'W2_DECEASED',
-           'W2_F1COMPLETE',
-           'W2_HCMST_INTERVIEW_FIN_YRMO',
-           'W2_XMARRY',
-           'W2_Q1',
-           'W2_Q2',
-           'W2_Q3',
-           'W2_Q4',
-           'W2_Q5',
-           'W2_Q6',
-           'W2_Q7',
-           'W2_Q8',
-           'W2_Q9',
-           'W2_Q10',
-           'W2_BROKE_UP',
-           'W2_DAYS_ELAPSED',
-           'PP3_PPHHHEAD',
-           'PP3_PPINCIMP',
-           'PP3_PPMARIT',
-           'PP3_PPCMDATE_YRMO',
-           'PP3_PPEDUC',
-           'PP3_PPEDUCAT',
-           'PP3_RESPONDENT_YRSED',
-           'PP3_PPETHM',
-           'PP3_NEWER',
-           'W2W3_COMBO_BREAKUP',
-           'W3_BROKE_UP',
-           'W3_XPARTNERED',
-           'W3_XDECEASED',
-           'W3_XLAST',
-           'W3_XYEAR',
-           'W3_XMONTH',
-           'W3_XQUALIFIED',
-           'W3_STATUS',
-           'W3_COMPLETE',
-           'W3_HCMST_INTERVIEW_FIN_YRMO',
-           'W3_DAYS_ELAPSED',
-           'W3_XMARRY',
-           'W3_Q1',
-           'W3_Q2',
-           'W3_Q3',
-           'W3_Q4',
-           'W3_MBTIMING_YEAR',
-           'W3_MBTIMING_MONTH',
-           'W3_Q5',
-           'W3_Q6',
-           'W3_Q7',
-           'W3_Q8',
-           'W3_Q9',
-           'W3_Q10',
-           'W3_NONMBTIMING_YEAR',
-           'W3_NONMBTIMING_MONTH',
-           'W4_XQUALIFIED',
-           'W4_STATUS',
-           'W4_COMPLETE',
-           'W4_HCMST_INTERVIEW_FIN_YRMO',
-           'W4_XTYPE',
-           'W4_XYEAR',
-           'W4_XMONTH',
-           'W4_XMARRY',
-           'W4_XLAST',
-           'W4_XWAVE1_MONTH',
-           'W4_XCIVIL',
-           'W4_Q1',
-           'W4_Q2',
-           'W4_QUALITY',
-           'W4_Q3',
-           'W4_Q4',
-           'W4_MBTIMING_YEAR',
-           'W4_MBTIMING_MONTH',
-           'W4_Q5',
-           'W4_Q6',
-           'W4_Q7',
-           'W4_MAR_YEAR',
-           'W4_MAR_MONTH',
-           'W4_CIV_YEAR',
-           'W4_Q8_A',
-           'W4_Q8_B',
-           'W4_Q9',
-           'W4_Q10',
-           'W4_NONMBTIMING_YEAR',
-           'W4_NONMBTIMING_MONTH',
-           'RELATIONSHIP_QUALITY_W4',
-           'W4_BROKE_UP',
-           'W234_COMBO_BREAKUP',
-           'PP4_PPEDUC',
-           'PP4_PPEDUCAT',
-           'PP4_PPETHM',
-           'PP4_PPHHHEAD',
-           'PP4_PPINCIMP',
-           'PP4_PPMARIT',
-           'PP4_PPCMDATE_YRMO',
-           'PP4_NEWER',
-           'PPA2009_SERVICES_YRMO',
-           'W5_COMPLETE',
-           'W5_STATUS',
-           'W5X_QUALIFIED',
-           'W5X_MARRY',
-           'W5X_LAST',
-           'W5X_YEAR',
-           'W5X_CIVIL',
-           'W5X_MONTH',
-           'W5X_CIVYEAR',
-           'W5X_CIVMONTH',
-           'W5_Q1',
-           'W5_Q2',
-           'W5_Q3',
-           'W5_Q4',
-           'W5_MBTIMING_MONTH',
-           'W5_MBTIMING_YEAR',
-           'W5_Q5',
-           'W5_Q6',
-           'W5_Q7',
-           'W5_MAR_YEAR',
-           'W5_MAR_MONTH',
-           'W5_Q8',
-           'W5_CIV_YEAR',
-           'W5_CIV_MONTH',
-           'W5_Q9',
-           'W5_Q10',
-           'W5_NONMBTIMING_YEAR',
-           'W5_NONMBTIMING_MONTH',
-           'W5_BROKE_UP',
-           'W5_HCMST_INTERVIEW_FIN_YRMO',
-           'W2345_COMBO_BREAKUP',
-           'RESPONDED_TO_W234OR5',
-           'PP5_PPEDUC',
-           'PP5_PPEDUCAT',
-           'PP5_PPETHM',
-           'PP5_PPINCIMP',
-           'PP5_PPMARIT',
-           'PP5_PPCMDATE_YRMO',
-           'PP5_NEWER',
-           'PPMARIT_2014',
-           'PPCMARIT_2014_YRMO',
-           'PPMARIT_2013',
-           'PPCMARIT_2013_YRMO',
-           'PPMARIT_2012',
-           'PPCMARIT_2012_YRMO',
-           'PPMARIT_2011',
-           'PPCMARIT_2011_YRMO',
-           'PPMARIT_2010',
-           'PPCMARIT_2010_YRMO',
-           'PPMARIT_2009',
-           'PPCMARIT_2009_YRMO',
-           'PPMARIT_2007',
-           'PPCMARIT_2007_YRMO')
+           'RELATIONSHIP_QUALITY' # relationship quality, based on q34, higher number is better
+)
 
 # store as new df
 df <- df[keeps]
+
+# only keep the partnered people
+df <- df[df$QFLAG=='(1) partnered',]
 
 # add a new column to track difference in education
 df['diff_in_education'] = df$RESPONDENT_YRSED - df$PARTNER_YRSED
 
 # add boolean to track difference in race
-df['diff_in_race'] = ifelse(df$RESPONDENT_RACE == df$PARTNER_RACE, 1, 0)
+df['diff_in_race'] = ifelse(df$RESPONDENT_RACE == df$PARTNER_RACE, 0, 1)
 
 # add boolean to track difference in income
 df['diff_in_income'] = ifelse(df$Q23 == '(2) we earned about the same amount', 0, 1)
 
 
 ## use the table function to see how distributed key variables are
-table(df$diff_in_education)
-table(df$diff_in_race)
-table(df$diff_in_income)
+hist(df$diff_in_education)
+hist(df$diff_in_race)
+hist(df$diff_in_income)
 
 
 ## look at the  NA's in all columns
