@@ -7,13 +7,15 @@ Importing libraries
 library(ggplot2)
 library(knitr)
 library(tidyverse)
+library(dplyr)
 ```
 
 Loading Data
 ```{r}
 load('./30103-0001-Data.rda')
 df <- da30103.0001
-names(df)
+#names(df)
+#str(df)
 ```
 
 Data Cleaning
@@ -33,10 +35,10 @@ keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc,
            'Q6B',             # race of partner
            'RESPONDENT_RACE',
            'PARTNER_RACE',
-           'RELATIONSHIP_QUALITY' # relationship quality, based on q34, higher number is better
-           'PPGENDER' #gender
-           'PPREG4' #based on state of residence
-           'PPREG9' #based on state of residence
+           'RELATIONSHIP_QUALITY', # relationship quality, based on q34, higher number is better
+           'PPGENDER', #gender
+           'PPREG4', #based on state of residence
+           'PPREG9', #based on state of residence
            'PPWORK' #current employment status
 )
 
@@ -48,6 +50,7 @@ df <- df[df$QFLAG=='(1) partnered',]
 
 ```
 
+Data Transformation
 ```{r add-col}
 # add a new column to track difference in education
 df['diff_in_education'] = df$RESPONDENT_YRSED - df$PARTNER_YRSED
@@ -58,8 +61,24 @@ df['diff_in_race'] = ifelse(df$RESPONDENT_RACE == df$PARTNER_RACE, 0, 1)
 # add boolean to track difference in income
 df['diff_in_income'] = ifelse(df$Q23 == '(2) we earned about the same amount', 0, 1)
 
-
+#add Relationship quality
 ```
 
+Relationship Quality
+```{r}
+glimpse(df$RELATIONSHIP_QUALITY)
+
+summary(df$RELATIONSHIP_QUALITY)
+ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar()
+
+NA %in% df$RELATIONSHIP_QUALITY
+sum(is.na(df$RELATIONSHIP_QUALITY))
+
+#There's 13 NA values for relationship quality - removing them
+df[!is.na(df$RELATIONSHIP_QUALITY), ]
+na.omit(df, cols = 'RELATIONSHIP_QUALITY')
+
+ggplot(df, aes(df$RELATIONSHIP_QUALITY)) + geom_bar()
+```
 
 
