@@ -40,8 +40,9 @@ keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc,
            'PPGENDER', #gender
            'PPREG4', #based on state of residence
            'PPREG9', #based on state of residence
-           'PPWORK' #current employment status
-)
+           'PPWORK', #current employment status
+           'SAME_SEX_COUPLE' #same sex couple
+           )
 
 # store as new df
 df <- df[keeps]
@@ -80,7 +81,7 @@ sum(is.na(df$RELATIONSHIP_QUALITY))
 df[!is.na(df$RELATIONSHIP_QUALITY), ]
 na.omit(df, cols = 'RELATIONSHIP_QUALITY')
 
-ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") 
+#ggplot(df, aes(RELATIONSHIP_QUALITY)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") 
 ```
 
 Current Employment Status
@@ -96,6 +97,15 @@ GLB Status
 table(df$PAPGLB_STATUS)
 
 ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("GLB Status") + ylab("Count") + theme(legend.position = "bottom")
+
+```
+
+Same Sex couple
+```{r}
+
+table(df$SAME_SEX_COUPLE)
+
+ggplot(df, aes(SAME_SEX_COUPLE)) + geom_bar() + theme_bw() + xlab("Same Sex Couple") + ylab("Count") + theme(legend.position = "bottom")
 
 ```
 
