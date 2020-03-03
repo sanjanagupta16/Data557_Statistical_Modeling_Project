@@ -1,0 +1,67 @@
+---
+title: "Income v. Relationship Quality"
+author: "Karl Stavem"
+date: "3/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Topic 2: How does income/income disparity affect relationship outcomes over time? And how does total income affect relationship length?
+
+First, we need to create a few additional fields to run our analysis.
+
+```{r}
+
+# clean up the income column - grab the number associated with each category
+df$income_val <- as.numeric(substr(df$PPINCIMP, 2, 3))
+
+
+# clean up the relationship quality column - grab the number associated with each category
+df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
+
+
+# create a boolean to track if couples make $75,000 or more
+df$income_greater_than_75k <- as.numeric(ifelse(df$income_val >= 14, 1, 0))
+
+```
+
+
+## T-Test
+
+---
+ Hypothesis testing: Our null hypothesis is that combined income of couples of greater than $75,000 (chosen due to factors explained here: https://www.huffpost.com/entry/map-happiness-benchmark_n_5592194) has no effect on relationship length/quality. We will perform the test via a large sample Z-test or t-test since our sample size is sufficiently large for both. We will create a calculated field for combined income that adds Partner 1 Income to Partner 2 incomes.
+---
+
+```{r}
+
+# split into two groups
+more.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 1]
+less.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 0]
+
+# look at the results of the test - highly significant
+model1 <- t.test(more.than.75k.group, less.than.75k.group, var.equal = FALSE)
+model1
+
+```
+Looking at the results of the t-test, we can see that having income above 75,000 is highly significant with regard to relationship quality.  Here we see a very small p-value of `r model1$p.value`.
+
+
+Since have turned the income variable into a simple categorical variable with only two levels (75k and over, or less than 75k), then the simple regression analysis is equivalent to an independent t test.
+
+
+```{r}
+# linear model on a two variable test is equivalent to a two sample t-test
+model2 <- summary(lm(relationship_val ~ income_greater_than_75k, data = df))
+model2
+```
+
+Here we can see a highly significant result.   As individuals move from the less than 75k group to the above 75k group, on average, the mean relationship quality improves by `r round(model2$coefficients['income_greater_than_75k', 'Estimate'], 4)`.
+
+
+## Linear Models
+Linear regression: we will create a linear regression model using income as the predictor variable and relationship length/quality as the outcome variable and examine the strength of the income coefficient, as well as the correlation between income and relationship length.
