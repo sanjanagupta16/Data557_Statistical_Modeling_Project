@@ -2,7 +2,19 @@
 
 This is the project for the DATA 557 - Applied Statistics and Experimental Design course at University of Washington, Seattle.
 
-Group Members: Sanjana Gupta, Natasha Halfin, Andreia Sodre Nichols, Karl Stavem, and Maggie Weatherly
+## Contributors
+
+* [Sanjana Gupta](https://github.com/sanjanagupta16)
+
+* [Natasha Halfin](https://github.com/nhalfi)
+
+* [Andreia Sodre Nichols](https://github.com/andreiabds)
+
+* [Karl Stavem](https://github.com/stavem)
+
+* [Maggie Weatherly](https://github.com/mweath)
+
+## Contents
 
 Romantic relationships are ubiquitous in human life. In Western culture, monogamous relationships and marriage are seen as the norm. However, a commonly shared statistic is that 50% of marriages end in divorce. Hence, the question: what makes relationships successful? What features are highly correlated with long-lasting relationships? 
 
@@ -11,12 +23,12 @@ How does race affect relationship length? Do mixed race couples stay together lo
 How does income/income disparity affect relationship outcomes over time? And how does total income affect relationship length?
 How does education level affect relationships? Do big disparities in education affect the length of a relationship? 
 
-## Description of data
+### Description of data
 We propose to use the dataset “How Couples Meet and Stay Together (HCMST)”. The dataset was collected from 2009 to 2015 by surveying 4,002 American respondents over five waves. Response to Wave 1 (main survey), in 2009,  was 71 percent. Response to Wave 2 (follow-up survey) one year later was 84 percent. Response to Wave 3 (follow-up survey) one year later was 72.9 percent. Response to Wave 4 (follow-up survey), in 2013, was 60 percent. The response rate to Wave 5 (follow-up survey), in 2015, was 46%. In total, the dataset has 4,002 observations with 534 features that include information such as marital status, sexuality, education level, income, and geographic location.
 
 Both heterosexual and LGBTQ individuals were surveyed. Additionally, relationship status and marital status were recorded in each wave, so we can examine patterns over time. We currently have access to the public use portion of the dataset. Each record represents a survey response from one individual.
 
-## Assumptions
+### Assumptions
 Survey respondents were recruited by random digit dial phone survey; therefore the survey population was randomly selected. However, we cannot say with confidence that the respondents are representative of the broader US population. In fact, the study oversampled LGBTQ populations to attempt to balance the study population. Furthermore, we are assuming that survey responses are truthful, although the data is ultimately self-reported and may not be entirely accurate.
 
 Data source: 
@@ -24,7 +36,7 @@ https://www.icpsr.umich.edu/icpsrweb/ICPSR/studies/30103?q=&paging.rows=25&sortB
 Rosenfeld, Michael J., Thomas, Reuben J., and Falcon, Maja. How Couples Meet and Stay Together (HCMST), Wave 1 2009, Wave 2 2010, Wave 3 2011, Wave 4 2013, Wave 5 2015, United States. Ann Arbor, MI: Inter-university Consortium for Political and Social Research [distributor], 2016-03-18. https://doi.org/10.3886/ICPSR30103.v8
 
 
-## Analysis Methods
+### Analysis Methods
 For our questions above, we plan to apply a combination of analysis methods: hypothesis testing, linear regression, and ANOVA. Our primary metric of relationship success is length of relationship. Since ¼ of the survey respondents are not coupled, we will exclude these data points to focus only on partnered respondents.
 
 Our plan for analysis is as follows:
