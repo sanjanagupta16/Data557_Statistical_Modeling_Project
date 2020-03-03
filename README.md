@@ -2,7 +2,8 @@
 
 This is the project for the DATA 557 - Applied Statistics and Experimental Design course at University of Washington, Seattle.
 
-Group Members: 
+## Contributors
+
 * [Sanjana Gupta](https://github.com/sanjanagupta16)
 
 * [Natasha Halfin](https://github.com/nhalfi)
@@ -12,6 +13,8 @@ Group Members:
 * [Karl Stavem](https://github.com/stavem)
 
 * [Maggie Weatherly](https://github.com/mweath)
+
+## Contents
 
 Romantic relationships are ubiquitous in human life. In Western culture, monogamous relationships and marriage are seen as the norm. However, a commonly shared statistic is that 50% of marriages end in divorce. Hence, the question: what makes relationships successful? What features are highly correlated with long-lasting relationships? 
 
