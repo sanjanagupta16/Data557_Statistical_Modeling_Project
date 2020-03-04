@@ -9,6 +9,8 @@ library(knitr)
 library(tidyverse)
 library(dplyr)
 library(kableExtra)
+library(gridExtra)
+library(ggplot2)
 ```
 
 Loading Data
@@ -32,7 +34,7 @@ keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc,
            'Q4',              #( is partner female or male) 
            'Q5',              #(is partner same gender)
            'Q23',             # between you and [partner_name], who earned more income in 2008
-           'PPETHM',          # race/ethnicity
+           'PPETHM',          # race/ethnicity hispanic/latino
            'Q6B',             # race of partner
            'RESPONDENT_RACE',
            'PARTNER_RACE',
@@ -44,7 +46,14 @@ keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc,
            'SAME_SEX_COUPLE', #same sex couple
            'PPAGE', #age at the time 
            'PAPRELIGION', #religion
-           'Q7B' #partner's religion
+           'Q7B', #partner's religion
+           'PPQ14ARACE', #race/ethnicity
+           'PPEDUC', #Education (highest degree received)
+           'PPEDUCAT', #Education categorical
+           'PPHOUSE', #Housing type
+           'PPRENT', #Ownership status
+           'PPMARIT', #marital status
+           'PPPARTYID3' #Political Party
           )
 
 # store as new df
@@ -75,6 +84,9 @@ df$work <- as.numeric((substr(df$PPWORK, 2,2)))
 
 #PPAGE - numeric
 df$PPAGE <- as.numeric(df$PPAGE)
+
+#Convert PPINCIMP to numeric
+#df$PPINCIMP <- as.numeric(gsub('[$,]', '', df$PPINCIMP))
 ```
 
 ## Exploratory Data Analysis 
@@ -144,9 +156,6 @@ Approximately even ratio of males to females.
 
 7. Comparing religion
 ```{r}
-library(gridExtra)
-library(ggplot2)
-
 kable(summary(df$PAPRELIGION)) %>% kable_styling(font_size = 14)
 
 p1 <- ggplot(df, aes(PAPRELIGION)) + 
@@ -164,7 +173,67 @@ grid.arrange(p1,p2, ncol = 1)
 
 ```
 
-8. Who Earns More?
+8. Race/Ethnicity Distribution
+```{r}
+kable(summary(df$PPETHM)) %>% kable_styling()
+
+ggplot(df, aes(PPETHM)) + geom_bar() + theme_bw() + xlab("Race") + coord_flip()
+```
+A large majority of the subjects are white - likely over-represented.
+
+9. Education Distribution
+```{r} 
+kable(summary(df$PPEDUC)) %>% kable_styling()
+kable(summary(df$PPEDUCAT)) %>% kable_styling()
+
+p1 <- ggplot(df, aes(PPEDUC)) + geom_bar() + theme_bw() + xlab("Education") + coord_flip()
+p2 <- ggplot(df, aes(PPEDUCAT)) + geom_bar() + theme_bw() + xlab("Education") + coord_flip()
+
+grid.arrange(p1, p2, ncol = 1)
+```
+A majority of the subjects have a bachelor's degree or higher.
+
+10. Household Income Distribution
+```{r}
+summary(df$PPINCIMP)
+
+ggplot(df, aes(PPINCIMP)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+The distribution is close to normal with some outliers at the high end.
+
+11. Housing Type
+```{r}
+kable(summary(df$PPHOUSE)) %>% kable_styling()
+
+ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+Most of the subjects live in a one family house.
+
+12. Rent
+```{r}
+kable(summary(df$PPRENT)) %>% kable_styling()
+
+ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+Most of the subjects own the house they live in.
+
+13. Marital Status
+```{r}
+kable(summary(df$PPMARIT)) %>% kable_styling()
+
+ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Household Income") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Most of the subjects are married.
+
+14. Political Party Affiliation
+```{r}
+kable(summary(df$PPPARTYID3)) %>% kable_styling()
+
+ggplot(df, aes(PPPARTYID3)) + geom_bar() + theme_bw() + xlab("Household Income") 
+```
+Approximately 3:2 ratio of Democrats to Republicans with a small number of independents.
+
+15. Who Earns More?
 ```{r}
  
 kable(summary(df$Q23)) %>% kable_styling(font_size = 14)
@@ -199,5 +268,4 @@ df %>% mutate(Q23 = fct_relevel(Q23,
     subtitle = "Women were more likely to report making less than their partner", 
     caption = "Source: HCMST 2017", 
     x = NULL, y = NULL)
-
 ```
