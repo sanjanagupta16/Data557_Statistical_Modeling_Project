@@ -59,6 +59,3 @@ for(i in 1:dim(df)[2])
 {
   print(paste(names(df)[i], length(which(is.na(df[,i])))))
 }
-
-#write.csv(df, "cleaned_df.csv")
-
