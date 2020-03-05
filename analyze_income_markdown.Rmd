@@ -1,0 +1,156 @@
+---
+title: "Income v. Relationship Quality"
+author: "Karl Stavem"
+date: "3/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+
+source('clean_data_file.R')
+```
+
+# Topic 2: How does income/income disparity affect relationship outcomes over time? And how does total income affect relationship length?
+
+
+## T-Test
+
+Hypothesis testing: Our null hypothesis is that combined income of couples of greater than $75,000 (chosen due to factors explained here: https://www.huffpost.com/entry/map-happiness-benchmark_n_5592194) has no effect on relationship length/quality. We will perform the test via a large sample Z-test or t-test since our sample size is sufficiently large for both. We will create a calculated field for combined income that adds Partner 1 Income to Partner 2 incomes.
+
+
+First, we need to create a few additional fields to run our analysis.
+
+```{r}
+
+#remove NAs from the relationship quality column
+df <- df[is.na(df$RELATIONSHIP_QUALITY)==FALSE,]
+
+# clean up the income column - grab the number associated with each category
+df$income_val <- as.numeric(substr(df$PPINCIMP, 2, 3))
+
+# clean up the relationship quality column - grab the number associated with each category
+df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
+
+# create a boolean to track if couples make $75,000 or more
+df$income_greater_than_75k <- as.numeric(ifelse(df$income_val >= 14, 1, 0))
+
+```
+
+Since have turned the income variable into a simple categorical variable with only two levels (\$75k and over, or less than \$75k), then the simple regression analysis is equivalent to an equal variance T test.   However, we do not want wish to assume equal variance in our two groups and have selected to run a Welch T-Test.
+
+```{r}
+
+# split into two groups
+more.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 1]
+less.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 0]
+
+# look at the results of the test - highly significant
+model1 <- t.test(more.than.75k.group, less.than.75k.group, var.equal = FALSE)
+model1
+
+```
+
+Looking at the results of the t-test, we can see that having income above \$75,000 is highly significant with regard to relationship quality.  Here we see a very small p-value of `r round(model1$p.value, 6)`.
+
+
+
+---
+
+## Linear Models
+
+
+Linear regression: we will create a linear regression model using income as the predictor variable and relationship length/quality as the outcome variable and examine the strength of the income coefficient, as well as the correlation between income and relationship length.
+
+#### Difference in income
+
+In order to run our analysis, we will use the `diff_in_income` field that we created during our data cleansing process.  This field is a simple boolean that tracks whether or not the two partners have approximately the same income level, or a different level.  We can build a simple linear model comparing this to `relationsihp_quality`.
+
+```{r}
+
+# Build the linear model
+model2 <- lm(relationship_val ~ diff_in_income, data=df)
+model2.summary <-  summary(model2)
+model2.summary
+
+```
+
+If we simply look at the results from this model we can see that that our p-value (`r model2.summary$coeff['diff_in_income', 'Pr(>|t|)']`) is not below 0.05, and we _do not_ see sufficient evidence to reject the null hypothesis.  
+
+There are several assumptions that are required in order to trust statistical inferences based on a linear model.  In order to create an accurate linear regression model, our data needs to meet the following four assumptions:
+
+* Independence – we worry about this when we have longitudinal dataset. Longitudinal data occurs when we collect observations from the same entity over time.  In this scenario, we do have a longitudinal data set, so it might have been a concern.   However, we are only looking at the original series of questions.   In this case, the set of observations are independent.  We have essentially narrowed our focus to a cross-sectional study and independence is assumed.
+
+* Linearity – when we examine the data, we do not necessarily see any indication that this data follows a linear pattern.  This assumption may not hold for our dataset.
+
+* Equality of variance: We look at a scattorplot of residuals an fitted values. If the residuals do not fan out in a triangular fashion that means that the equal variance assumption is met.   Looking at our data, it is unclear if this is a concern:
+
+```{r}
+plot(model2$fitted.values, model2$residuals)
+```
+
+* Normality: We can address the normality assumption by looking at the histogram of residuals.  
+
+```{r, fig.height=4.5,fig.width=4.5}
+hist(model2$residuals,main="")
+```
+This doesn't appear to be very normally distributed.
+
+```{r}
+x <- model2$residuals
+h<-hist(x, xlab="Model 2 Residuals", ylim=c(0,1500),xlim=c(-3,2),
+        main="")
+xfit<-seq(min(x),2,length=50)
+yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+yfit <- yfit*diff(h$mids[1:2])*length(x)
+lines(xfit, yfit, col="red", lwd=2)
+
+```
+
+Also, looking at the Q-Q plot, we are forced to reject the normality assumption:
+
+```{r}
+qqnorm(model2$residuals)
+qqline(model2$residuals)
+```
+
+
+Another possibility is ANOVA:
+
+```{r}
+model4 <- aov(relationship_val ~ diff_in_income, data=df)
+summary.model4 <- summary(model4)
+summary.model4
+
+```
+However, in this scenario, we are simply comparing two groups. Because of this, ANOVA provides the exact same results as linear regression.  Looking at the p-value of this model, we can see a value of 0.0983.   Therefore, we do not see sufficient evidence to reject the null hypothesis that difference in income has no effect on mean relationship quality.
+
+We could try flipping the question around and see if relationship quality is able to tell us anything about the likelihood of having different income.  Here, we can use a logistic regression:
+
+```{r}
+model5 <- summary(glm(diff_in_income ~ relationship_val, data=df, family = binomial))
+model5
+
+model5.coeff <- exp(model5$coefficients['relationship_val', 'Estimate'])
+```
+
+Here we can say that with each unit increase in relationship quality, the odds of having different income as a couple decrease by a factor of `r round(model5.coeff, 3)`.  
+
+
+#### Income levels
+
+In this model we will ignore differences in income between partners.   Instead we will simply look at the total combined income for the couple.
+
+hist(as.numeric(relationship_val), as.numeric(income_val), data=df)
+
+ANOVA to analysis the results:
+
+```{r}
+model7 <- aov(relationship_val ~ factor(income_val), data = df)
+summary.model7 <- summary(model7)
+summary.model7
+
+```
+
