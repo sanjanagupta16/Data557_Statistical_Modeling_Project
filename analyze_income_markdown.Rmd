@@ -16,10 +16,7 @@ source('clean_data_file.R')
 # Topic 2: How does income/income disparity affect relationship outcomes over time? And how does total income affect relationship length?
 
 
-
-
 ## T-Test
-
 
 Hypothesis testing: Our null hypothesis is that combined income of couples of greater than $75,000 (chosen due to factors explained here: https://www.huffpost.com/entry/map-happiness-benchmark_n_5592194) has no effect on relationship length/quality. We will perform the test via a large sample Z-test or t-test since our sample size is sufficiently large for both. We will create a calculated field for combined income that adds Partner 1 Income to Partner 2 incomes.
 
@@ -82,7 +79,7 @@ model2.summary
 
 If we simply look at the results from this model we can see that that our p-value (`r model2.summary$coeff['diff_in_income', 'Pr(>|t|)']`) is not below 0.05, and we _do not_ see sufficient evidence to reject the null hypothesis.  
 
-However, there are several assumptions that are required in order to trust statistical inferences based on a linear model.  If we examine these assumptions further we can see we can not necessarily trust these results.  In order to create an accurate linear regression model, our data needs to meet the following four assumptions:
+There are several assumptions that are required in order to trust statistical inferences based on a linear model.  In order to create an accurate linear regression model, our data needs to meet the following four assumptions:
 
 * Independence – we worry about this when we have longitudinal dataset. Longitudinal data occurs when we collect observations from the same entity over time.  In this scenario, we do have a longitudinal data set, so it might have been a concern.   However, we are only looking at the original series of questions.   In this case, the set of observations are independent.  We have essentially narrowed our focus to a cross-sectional study and independence is assumed.
 
@@ -94,16 +91,12 @@ However, there are several assumptions that are required in order to trust stati
 plot(model2$fitted.values, model2$residuals)
 ```
 
-However, there is one final requirement for a linear model that appears to be a concern for us.
-
-* Normality: we draw a histogram of the residuals, and then examine the normality of the residuals. If the residuals are not skewed, that means that the assumption is satisfied.
-
-We can address the normality assumption by looking at the histogram of residuals.  
+* Normality: We can address the normality assumption by looking at the histogram of residuals.  
 
 ```{r, fig.height=4.5,fig.width=4.5}
 hist(model2$residuals,main="")
 ```
-This doesn't appear to be very normally distributed.  It becomes more obvious as we attempt to overlay normal distribution on the data:
+This doesn't appear to be very normally distributed.
 
 ```{r}
 x <- model2$residuals
@@ -116,7 +109,6 @@ lines(xfit, yfit, col="red", lwd=2)
 
 ```
 
-
 Also, looking at the Q-Q plot, we are forced to reject the normality assumption:
 
 ```{r}
@@ -125,10 +117,7 @@ qqline(model2$residuals)
 ```
 
 
-Based on this graph, I would be forced to conclude that degree of non-normality of the errors is severe enough to invalidate statistical inferences based on our linear model.
-
-
-Since we do not see enough justification to use regression, another possibility is ANOVA:
+Another possibility is ANOVA:
 
 ```{r}
 model4 <- aov(relationship_val ~ diff_in_income, data=df)
@@ -147,7 +136,7 @@ model5
 model5.coeff <- exp(model5$coefficients['relationship_val', 'Estimate'])
 ```
 
-Here we can say that with each unit increase in relationship quality, the odds of having different income as a couple decrease by a factor of `r round(model5.coeff, 3)`.  However, looking at the p-value, we do not see sufficent evidence to reject the null hypothesis.
+Here we can say that with each unit increase in relationship quality, the odds of having different income as a couple decrease by a factor of `r round(model5.coeff, 3)`.  
 
 
 #### Income levels
@@ -156,29 +145,7 @@ In this model we will ignore differences in income between partners.   Instead w
 
 hist(as.numeric(relationship_val), as.numeric(income_val), data=df)
 
-```{r}
-# linear model looking at income val
-summary(aov(relationship_val ~ factor(income_val), data = df))
-# linear model looking at income val
-model6 <- summary(lm(relationship_val ~ factor(income_val), data = df))
-hist(model6$residuals,main="")
-````
-
-This doesn't appear to be very normally distributed.  It becomes more obvious as we attempt to overlay normal distribution on the data:
-
-```{r}
-x <- model6$residuals
-h<-hist(x, xlab="Model 6 Residuals", ylim=c(0,1500),xlim=c(-2,2),
-        main="")
-xfit<-seq(min(x),2,length=50)
-yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
-yfit <- yfit*diff(h$mids[1:2])*length(x)
-lines(xfit, yfit, col="red", lwd=2)
-
-```
-
-
-For this reason, it makes sense to use ANOVA to analysis the results:
+ANOVA to analysis the results:
 
 ```{r}
 model7 <- aov(relationship_val ~ factor(income_val), data = df)
