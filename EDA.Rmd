@@ -1,7 +1,12 @@
 ---
 title: "EDA"
-output: pdf_document
+output: html_document
 ---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
 Importing libraries
 ```{r include=FALSE}
 library(ggplot2)
@@ -14,7 +19,7 @@ library(ggplot2)
 ```
 
 Loading Data
-```{r}
+```{r load-data}
 load('./30103-0001-Data.rda')
 df <- da30103.0001
 #names(df)
@@ -92,7 +97,7 @@ df$PPAGE <- as.numeric(df$PPAGE)
 ## Exploratory Data Analysis 
 
 1. Relationship Quality -- new column relationship_val
-```{r}
+```{r quality}
 glimpse(df$relationship_val)
 
 (summary(df$relationship_val))
@@ -110,16 +115,16 @@ ggplot(df, aes(relationship_val)) + geom_bar() + theme_bw() + xlab("Relationship
 Most subject quantify their relationship status as excellent.
 
 2. Current Employment Status
-```{r}
+```{r employment}
 kable(summary(df$PPWORK)) %>% kable_styling(font_size = 14)
 
 ggplot(df, aes(PPWORK)) + geom_bar() + coord_flip() + theme_bw() + ylab("Count") + theme(legend.position = "bottom")
 
 ```
-Most of the participants are worjing as a paid employee.
+Most of the participants are working as a paid employee.
 
 3. GLB Status
-```{r}
+```{r glb}
 kable(summary(df$PAPGLB_STATUS)) %>% kable_styling(font_size = 14)
 
 
@@ -129,7 +134,7 @@ ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("GLB Status") + 
 Approximately, 1/5 of the subjects identify as gay/lesbian/bi.
 
 4. Same Sex couple
-```{r}
+```{r same-sex}
 
 kable(summary(df$SAME_SEX_COUPLE)) %>% kable_styling(font_size = 14)
 
@@ -139,7 +144,7 @@ ggplot(df, aes(SAME_SEX_COUPLE)) + geom_bar() + theme_bw() + xlab("Same Sex Coup
 There are 474 same sex couples (approximately 15%)
 
 5. Age:
-```{r}
+```{r age}
 summary(df$PPAGE)
 ggplot(df, aes(PPAGE)) + geom_bar() + theme_bw() + xlab("Age")
 ```
@@ -147,7 +152,7 @@ Age ranges from 19 to 95, and is slightly right skewed with a median age of 45.
 
 
 6. Gender:
-```{r}
+```{r gender}
 kable(summary(df$Q4)) %>% kable_styling(font_size = 14)
 ggplot(df, aes(Q4)) + geom_bar() + theme_bw() + xlab("Gender")
 ```
@@ -155,7 +160,7 @@ Approximately even ratio of males to females.
 
 
 7. Comparing religion
-```{r}
+```{r religion}
 kable(summary(df$PAPRELIGION)) %>% kable_styling(font_size = 14)
 
 p1 <- ggplot(df, aes(PAPRELIGION)) + 
@@ -174,7 +179,7 @@ grid.arrange(p1,p2, ncol = 1)
 ```
 
 8. Race/Ethnicity Distribution
-```{r}
+```{r race}
 kable(summary(df$PPETHM)) %>% kable_styling()
 
 ggplot(df, aes(PPETHM)) + geom_bar() + theme_bw() + xlab("Race") + coord_flip()
@@ -182,7 +187,7 @@ ggplot(df, aes(PPETHM)) + geom_bar() + theme_bw() + xlab("Race") + coord_flip()
 A large majority of the subjects are white - likely over-represented.
 
 9. Education Distribution
-```{r} 
+```{r education} 
 kable(summary(df$PPEDUC)) %>% kable_styling()
 kable(summary(df$PPEDUCAT)) %>% kable_styling()
 
@@ -194,7 +199,7 @@ grid.arrange(p1, p2, ncol = 1)
 A majority of the subjects have a bachelor's degree or higher.
 
 10. Household Income Distribution
-```{r}
+```{r income}
 summary(df$PPINCIMP)
 
 ggplot(df, aes(PPINCIMP)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
@@ -202,7 +207,7 @@ ggplot(df, aes(PPINCIMP)) + geom_bar() + theme_bw() + xlab("Household Income") +
 The distribution is close to normal with some outliers at the high end.
 
 11. Housing Type
-```{r}
+```{r housing}
 kable(summary(df$PPHOUSE)) %>% kable_styling()
 
 ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
@@ -210,7 +215,7 @@ ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Household Income") + 
 Most of the subjects live in a one family house.
 
 12. Rent
-```{r}
+```{r rent}
 kable(summary(df$PPRENT)) %>% kable_styling()
 
 ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
@@ -218,7 +223,7 @@ ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Household Income") + c
 Most of the subjects own the house they live in.
 
 13. Marital Status
-```{r}
+```{r marital-status}
 kable(summary(df$PPMARIT)) %>% kable_styling()
 
 ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Household Income") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -226,7 +231,7 @@ ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Household Income") + 
 Most of the subjects are married.
 
 14. Political Party Affiliation
-```{r}
+```{r political}
 kable(summary(df$PPPARTYID3)) %>% kable_styling()
 
 ggplot(df, aes(PPPARTYID3)) + geom_bar() + theme_bw() + xlab("Household Income") 
@@ -234,7 +239,7 @@ ggplot(df, aes(PPPARTYID3)) + geom_bar() + theme_bw() + xlab("Household Income")
 Approximately 3:2 ratio of Democrats to Republicans with a small number of independents.
 
 15. Who Earns More?
-```{r}
+```{r earning}
  
 kable(summary(df$Q23)) %>% kable_styling(font_size = 14)
 
