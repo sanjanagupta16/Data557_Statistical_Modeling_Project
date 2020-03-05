@@ -1,0 +1,83 @@
+---
+title: "education"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list = ls())
+df = read.csv("cleaned_df.csv")
+df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
+
+```
+
+```{r}
+hist(df$relationship_val)
+summary(df$relationship_val)
+```
+
+## Difference in Education 
+
+```{r}
+hist(df$diff_in_education)
+summary(df$diff_in_education)
+```
+
+## Difference in Education - Linear Regression
+
+
+```{r}
+summary(lm(relationship_val ~ diff_in_education, data=df))
+```
+
+## Absolute Value of Difference in Education
+
+
+```{r}
+df$abs_diff_in_education = abs(df$diff_in_education)
+hist(df$abs_diff_in_education)
+summary(df$abs_diff_in_education)
+```
+
+
+## Absolute Value of Difference in Education - Linear Regression
+
+
+```{r}
+summary(lm(relationship_val ~ abs_diff_in_education, data=df))
+```
+
+
+## Anova Model on categorical Respondent Years of Education and categorical Partner Years of Education
+
+```{r}
+summary(aov(relationship_val ~ factor(RESPONDENT_YRSED) + factor(PARTNER_YRSED), data=df))
+summary(aov(relationship_val ~ factor(RESPONDENT_YRSED)*factor(PARTNER_YRSED), data=df))
+```
+
+## Anova Model on "Large" Differences in Education vs "Non Large" Differences in Education
+
+```{r}
+df$large_diff_in_education <- ifelse(df$abs_diff_in_education >= 4.0, "large", "not large")
+
+summary(aov(relationship_val ~ factor(large_diff_in_education), data=df))
+```
+
+
+## Closer Looker at Couples who have different education levels
+
+```{r}
+df_different_education <- df[df$abs_diff_in_education!=0.0,]
+hist(df_different_education$abs_diff_in_education)
+summary(df_different_education$abs_diff_in_education)
+```
+
+```{r}
+summary(lm(relationship_val ~ abs_diff_in_education, data=df_different_education))
+```
+
+
+
+
+
+
