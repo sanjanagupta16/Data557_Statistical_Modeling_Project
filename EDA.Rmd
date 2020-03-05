@@ -1,0 +1,316 @@
+---
+title: "EDA"
+output: html_document
+---
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Importing libraries
+```{r include=FALSE}
+library(ggplot2)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(kableExtra)
+library(gridExtra)
+library(ggplot2)
+```
+
+```{r load-data}
+load('./30103-0001-Data.rda')
+df <- da30103.0001
+#names(df)
+#str(df)
+```
+
+Data Cleaning
+```{r cols-to-keep}
+keeps <- c('RESPONDENT_YRSED',# Approx Respondent yrs education based on ppeduc, first demographic survey
+           'PARTNER_YRSED',   #Partner yrs education based on q10
+           'PPINCIMP',        #Binned - total combined household income
+           'PPWORK',          #employment
+           'QFLAG',           # does person have a partner?
+           'PAPGLB_STATUS',   #(gay, lesbian, or bisexual)
+           'PPMARIT',         # marital status
+           'PPGENDER',        # gender
+           'Q4',              #( is partner female or male) 
+           'Q5',              #(is partner same gender)
+           'Q23',             # between you and [partner_name], who earned more income in 2008
+           'PPETHM',          # race/ethnicity hispanic/latino
+           'Q6B',             # race of partner
+           'RESPONDENT_RACE',
+           'PARTNER_RACE',
+           'RELATIONSHIP_QUALITY', # relationship quality, based on q34, higher number is better
+           'PPGENDER', #gender
+           'PPREG4', #based on state of residence
+           'PPREG9', #based on state of residence
+           'PPWORK', #current employment status
+           'SAME_SEX_COUPLE', #same sex couple
+           'PPAGE', #age at the time 
+           'PAPRELIGION', #religion
+           'Q7B', #partner's religion
+           'PPQ14ARACE', #race/ethnicity
+           'PPEDUC', #Education (highest degree received)
+           'PPEDUCAT', #Education categorical
+           'PPHOUSE', #Housing type
+           'PPRENT', #Ownership status
+           'PPMARIT', #marital status
+           'PPPARTYID3', #Political Party
+           'Q20', #cohabitating
+           'Q19' #cohabit
+          )
+
+# store as new df
+df <- df[keeps]
+
+# only keep the partnered people
+df <- df[df$QFLAG=='(1) partnered',]
+
+```
+
+### Data Transformation
+```{r add-col}
+# add a new column to track difference in education
+df['diff_in_education'] = df$RESPONDENT_YRSED - df$PARTNER_YRSED
+
+# add boolean to track difference in race
+df['diff_in_race'] = ifelse(df$RESPONDENT_RACE == df$PARTNER_RACE, 0, 1)
+
+# add boolean to track difference in income
+df['diff_in_income'] = ifelse(df$Q23 == '(2) we earned about the same amount', 0, 1)
+
+#add Relationship quality
+df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
+
+#add PPWORK
+df$work <- as.numeric((substr(df$PPWORK, 2,2)))
+#head(df$work)
+
+#PPAGE - numeric
+df$PPAGE <- as.numeric(df$PPAGE)
+
+#Convert PPINCIMP to numeric
+#df$PPINCIMP <- as.numeric(gsub('[$,]', '', df$PPINCIMP))
+```
+
+## Exploratory Data Analysis 
+
+1. Relationship Quality -- new column relationship_val
+
+```{r quality}
+glimpse(df$relationship_val)
+
+(summary(df$relationship_val))
+
+ggplot(df, aes(relationship_val)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") 
+
+NA %in% df$RELATIONSHIP_QUALITY
+sum(is.na(df$RELATIONSHIP_QUALITY))
+
+#There's 13 NA values for relationship quality - removing them
+df <- df[is.na(df$RELATIONSHIP_QUALITY)==FALSE,]
+
+ggplot(df, aes(relationship_val)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") + scale_fill_discrete(name = "Title", labels = c("A","B","C","D","E")) + theme(legend.position = "top")
+```
+
+Most subject quantify their relationship status as excellent.
+
+2. Current Employment Status
+
+```{r employment}
+kable(summary(df$PPWORK)) %>% kable_styling(font_size = 14)
+
+ggplot(df, aes(PPWORK)) + geom_bar() + coord_flip() + theme_bw() + ylab("Count") + theme(legend.position = "bottom")
+
+```
+
+Most of the participants are working as a paid employee.
+
+3. GLB Status
+
+```{r glb}
+kable(summary(df$PAPGLB_STATUS)) %>% kable_styling(font_size = 14)
+
+
+ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("GLB Status") + ylab("Count") + theme(legend.position = "bottom")
+
+```
+
+Approximately, 1/5 of the subjects identify as gay/lesbian/bi.
+
+4. Same Sex couple
+
+```{r same-sex}
+
+kable(summary(df$SAME_SEX_COUPLE)) %>% kable_styling(font_size = 14)
+
+ggplot(df, aes(SAME_SEX_COUPLE)) + geom_bar() + theme_bw() + xlab("Same Sex Couple") + ylab("Count") + theme(legend.position = "bottom")
+
+```
+
+There are 474 same sex couples (approximately 15%)
+
+5. Age
+
+```{r age}
+summary(df$PPAGE)
+ggplot(df, aes(PPAGE)) + geom_bar() + theme_bw() + xlab("Age")
+```
+
+Age ranges from 19 to 95, and is slightly right skewed with a median age of 45.
+
+
+6. Gender
+
+```{r gender}
+kable(summary(df$Q4)) %>% kable_styling(font_size = 14)
+ggplot(df, aes(Q4)) + geom_bar() + theme_bw() + xlab("Gender")
+```
+
+Approximately even ratio of males to females.
+
+
+7. Comparing Religion
+
+```{r religion}
+kable(summary(df$PAPRELIGION)) %>% kable_styling(font_size = 14)
+
+p1 <- ggplot(df, aes(PAPRELIGION)) + 
+  geom_bar() + theme_bw() + 
+  coord_flip() + ggtitle("Religion") +
+  xlab("Subject's Religion")
+
+p2 <- ggplot(df, aes(Q7B)) + 
+  geom_bar() + theme_bw() + 
+  coord_flip() + 
+  ggtitle("Partner's Religion") + 
+  xlab("Partner's Religion")
+
+grid.arrange(p1,p2, ncol = 1)
+
+```
+
+8. Race/Ethnicity Distribution
+
+```{r race}
+kable(summary(df$PPETHM)) %>% kable_styling()
+
+ggplot(df, aes(PPETHM)) + geom_bar() + theme_bw() + xlab("Race") + coord_flip()
+```
+
+A large majority of the subjects are white - likely over-represented.
+
+9. Education Distribution
+
+```{r education} 
+kable(summary(df$PPEDUC)) %>% kable_styling()
+kable(summary(df$PPEDUCAT)) %>% kable_styling()
+
+p1 <- ggplot(df, aes(PPEDUC)) + geom_bar() + theme_bw() + xlab("Education") + coord_flip()
+p2 <- ggplot(df, aes(PPEDUCAT)) + geom_bar() + theme_bw() + xlab("Education") + coord_flip()
+
+grid.arrange(p1, p2, ncol = 1)
+```
+
+A majority of the subjects have a Bachelor's degree or higher.
+
+10. Household Income Distribution
+
+```{r income}
+summary(df$PPINCIMP)
+
+ggplot(df, aes(PPINCIMP)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+
+The distribution is close to normal with some outliers at the high end.
+
+11. Housing Type
+
+```{r housing}
+kable(summary(df$PPHOUSE)) %>% kable_styling()
+
+ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+
+Most of the subjects live in a one family house.
+
+12. Rent
+
+```{r rent}
+kable(summary(df$PPRENT)) %>% kable_styling()
+
+ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+```
+
+Most of the subjects own the house they live in.
+
+13. Marital Status
+
+```{r marital-status}
+kable(summary(df$PPMARIT)) %>% kable_styling()
+
+ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Household Income") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Most of the subjects are married.
+
+14. Political Party Affiliation
+
+```{r political}
+kable(summary(df$PPPARTYID3)) %>% kable_styling()
+
+ggplot(df, aes(PPPARTYID3)) + geom_bar() + theme_bw() + xlab("Household Income") 
+```
+
+Approximately 3:2 ratio of Democrats to Republicans with a small number of independents.
+
+15. Cohabitating Couples
+
+```{r}
+kable(summary(df$Q19)) %>% kable_styling()
+
+ggplot(df, aes(Q19)) + geom_bar() + theme_bw() + xlab("Living with Partner") 
+
+```
+2539 couples (79.6%) live with their partners.
+
+16. Who Earns More?
+
+```{r earning}
+ 
+kable(summary(df$Q23)) %>% kable_styling(font_size = 14)
+
+df %>% mutate(Q23 = fct_relevel(Q23, 
+                           "We earned about the same amount",
+                           "partner earned more", 
+                           "I earned more")) %>% 
+  
+  mutate(Q23 = fct_recode(Q23,"We earned about the same" = "We earned about the same amount", "My partner earned more" = "[Partner Name] earned more")) %>% 
+  
+  # Removed those who refused from the dataset as well as those who reported that their partner was not working for pay -- a small total that do not contribute to any major trends
+  
+  filter(!is.na(Q23), 
+         Q23 != "Refused", 
+         Q23 != "[Partner Name] was not working for pay") %>%  # Create bar chart based on responses for Q23 (respondent's pay versus partner's pay)
+  
+  ggplot(aes(x = Q23, fill = PPGENDER)) + 
+  
+  geom_bar(show.legend=FALSE) + 
+  
+  facet_wrap(~PPGENDER) + 
+  
+  coord_flip() + 
+  
+  theme_bw() + 
+  
+  scale_fill_manual(values = c("gray34", "gray34")) +
+  
+  labs(
+    title = "Earnings among Partners in the US", 
+    subtitle = "Women were more likely to report making less than their partner", 
+    caption = "Source: HCMST 2017", 
+    x = NULL, y = NULL)
+```
+
