@@ -1,6 +1,6 @@
 ---
 title: "education"
-output: pdf_document
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -8,7 +8,8 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 df = read.csv("cleaned_df.csv")
 df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
-
+df = df[c('relationship_val', 'diff_in_education', 'RESPONDENT_YRSED', 'PARTNER_YRSED')]
+df = na.omit(df) 
 ```
 
 ```{r}
@@ -23,11 +24,43 @@ hist(df$diff_in_education)
 summary(df$diff_in_education)
 ```
 
+
+
+
+
+
+## T-test
+
+```{r}
+mean(df$relationship_val[df$diff_in_education != 0])
+mean(df$relationship_val[df$diff_in_education == 0])
+
+
+var(df$relationship_val[df$diff_in_education != 0])
+var(df$relationship_val[df$diff_in_education == 0])
+
+
+ed_difference <- df$relationship_val[df$diff_in_education != 0]
+no_ed_difference <- df$relationship_val[df$diff_in_education == 0]
+
+model1 <- t.test(ed_difference, no_ed_difference, var.equal = FALSE)
+model1
+```
+
+
+
+
+
 ## Difference in Education - Linear Regression
 
 
 ```{r}
-summary(lm(relationship_val ~ diff_in_education, data=df))
+fit = lm(relationship_val ~ diff_in_education, data=df)
+summary(fit)
+```
+
+```{r}
+plot(fit)
 ```
 
 ## Absolute Value of Difference in Education
@@ -44,8 +77,67 @@ summary(df$abs_diff_in_education)
 
 
 ```{r}
-summary(lm(relationship_val ~ abs_diff_in_education, data=df))
+df$abs_diff_in_education = abs(df$diff_in_education)
+fit = lm(relationship_val ~ abs_diff_in_education, data=df)
+summary(fit)
 ```
+
+
+
+```{r}
+plot(fit)
+```
+
+
+## ANOVA on created categorical field
+
+
+```{r}
+df$respondent_vs_partner = df$diff_in_education
+
+df$respondent_vs_partner[df$diff_in_education < 0] = 'partner' 
+df$respondent_vs_partner[df$diff_in_education > 0] = 'respondent'
+df$respondent_vs_partner[df$diff_in_education == 0] = 'same_ed'
+
+barplot(prop.table(table(df$respondent_vs_partner)))
+```
+
+```{r}
+fit = aov(relationship_val ~ factor(respondent_vs_partner), data=df)
+summary(fit)
+```
+
+```{r}
+plot(fit)
+
+```
+
+
+
+```{r}
+var(df[df$respondent_vs_partner == 'partner',]$relationship_val)
+var(df[df$respondent_vs_partner == 'respondent',]$relationship_val)
+var(df[df$respondent_vs_partner == 'same_ed',]$relationship_val)
+```
+
+
+```{r}
+mean(df$relationship_val[df$respondent_vs_partner == 'partner'])
+mean(df$relationship_val[df$respondent_vs_partner == 'respondent'])
+mean(df$relationship_val[df$respondent_vs_partner == 'same_ed'])
+```
+
+
+
+
+
+
+
+
+
+
+## Old - Ignore Below
+
 
 
 ## Anova Model on categorical Respondent Years of Education and categorical Partner Years of Education
@@ -63,6 +155,24 @@ df$large_diff_in_education <- ifelse(df$abs_diff_in_education >= 4.0, "large", "
 summary(aov(relationship_val ~ factor(large_diff_in_education), data=df))
 ```
 
+```{r}
+plot(df$abs_diff_in_education, df$relationship_val)
+```
+
+
+```{r}
+
+fit = lm(relationship_val ~ abs_diff_in_education, data=df)
+qqnorm(fit$residuals)
+qqline(fit$residuals)
+
+```
+```{r}
+
+par(mfrow=c(2,2),mar=c(5,4,2,1))
+plot(fit)
+
+```
 
 ## Closer Looker at Couples who have different education levels
 
@@ -75,6 +185,14 @@ summary(df_different_education$abs_diff_in_education)
 ```{r}
 summary(lm(relationship_val ~ abs_diff_in_education, data=df_different_education))
 ```
+
+
+
+
+```{r}
+summary(glm(relationship_val ~ factor(respondent_vs_partner), data = df, family=poisson))$coef
+```
+
 
 
 
