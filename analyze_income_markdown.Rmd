@@ -47,9 +47,49 @@ Since have turned the income variable into a simple categorical variable with on
 more.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 1]
 less.than.75k.group <- df$relationship_val[df$income_greater_than_75k == 0]
 
+# look at number in each group
+length(more.than.75k.group)
+length(less.than.75k.group)
+
+# difference in size
+length(less.than.75k.group) - length(more.than.75k.group)
+
+# show the sizes
+barplot(table(df$income_greater_than_75k), 
+        main = 'Combined Income',
+        xlab = 'Income Above $75k',
+        ylim = c(0,2000),
+        ylab = 'Count'
+        )
+
+```
+
+
+Are we sufficiently powered to study our data?  Could we detect small difference of 20% with 90% power and a 0.05 significance level?
+
+```{r}
+
+data = df$income_greater_than_75k
+mu_0 = mean(data)
+mu_1 = mu_0 *.8
+numerator = sd(data)^2 * (qnorm(.9) + qnorm(1-.05/2)^2)
+denominator = (mu_0 - mu_1)^2
+n = numerator/denominator
+n
+
+```
+We would need at least `r round(n, 3)` people in each group to accurately perform this test.   We should have sufficient power.
+
+So our null hypothesis:
+
+$$ H_0: \mu_1 = \mu_0 \\ H_A: \mu_1 > \mu_0 $$
+
+
+```{r}
 # look at the results of the test - highly significant
-model1 <- t.test(more.than.75k.group, less.than.75k.group, var.equal = FALSE)
+model1 <- t.test(more.than.75k.group, less.than.75k.group, var.equal = FALSE, alternative = 'g')
 model1
+
 
 ```
 
@@ -88,13 +128,13 @@ There are several assumptions that are required in order to trust statistical in
 * Equality of variance: We look at a scattorplot of residuals an fitted values. If the residuals do not fan out in a triangular fashion that means that the equal variance assumption is met.   Looking at our data, it is unclear if this is a concern:
 
 ```{r}
-plot(model2$fitted.values, model2$residuals)
+plot(model2$fitted.values, model2$residuals, xlab = "Residuals")
 ```
 
 * Normality: We can address the normality assumption by looking at the histogram of residuals.  
 
 ```{r, fig.height=4.5,fig.width=4.5}
-hist(model2$residuals,main="")
+hist(model2$residuals,main="", xlab = "Residuals")
 ```
 This doesn't appear to be very normally distributed.
 
@@ -131,9 +171,11 @@ We could try flipping the question around and see if relationship quality is abl
 
 ```{r}
 model5 <- summary(glm(diff_in_income ~ relationship_val, data=df, family = binomial))
-model5
+model5$coef
 
 model5.coeff <- exp(model5$coefficients['relationship_val', 'Estimate'])
+model5.coeff
+
 ```
 
 Here we can say that with each unit increase in relationship quality, the odds of having different income as a couple decrease by a factor of `r round(model5.coeff, 3)`.  

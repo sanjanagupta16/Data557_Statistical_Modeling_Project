@@ -125,3 +125,18 @@ xfit<-seq(min(x),2,length=50)
 yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
 yfit <- yfit*diff(h$mids[1:2])*length(x)
 lines(xfit, yfit, col="red", lwd=2)
+
+
+x <- more.than.75k.group
+y <- less.than.75k.group
+hist(x)
+hist(y, add=T)
+
+
+data = df$income_greater_than_75k
+mu_0 = mean(data)
+mu_1 = mu_0 *.8
+numerator = sd(pre)^2 * (qnorm(.9) + qnorm(1-.05/2)^2)
+denominator = (mu_0 - mu_1)^2
+n = numerator/denominator
+n
