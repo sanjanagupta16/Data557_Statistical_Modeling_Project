@@ -112,7 +112,7 @@ sum(is.na(df$RELATIONSHIP_QUALITY))
 #There's 13 NA values for relationship quality - removing them
 df <- df[is.na(df$RELATIONSHIP_QUALITY)==FALSE,]
 
-ggplot(df, aes(relationship_val)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count") + scale_fill_discrete(name = "Title", labels = c("A","B","C","D","E")) + theme(legend.position = "top")
+ggplot(df, aes(relationship_val)) + geom_bar() + theme_bw() + xlab("Relationship Quality") + ylab("Count")
 ```
 
 Most subject quantify their relationship status as excellent.
@@ -133,8 +133,9 @@ Most of the participants are working as a paid employee.
 ```{r glb}
 kable(summary(df$PAPGLB_STATUS)) %>% kable_styling(font_size = 14)
 
-
-ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("GLB Status") + ylab("Count") + theme(legend.position = "bottom")
+df <- df[!(df$PAPGLB_STATUS == '(3) i would prefer to not answer this question'),]
+p3 <- ggplot(df, aes(PAPGLB_STATUS)) + geom_bar() + theme_bw() + xlab("Gay/ Lesbian/ Bisexual Status") + ylab("Count") + theme(legend.position = "bottom") 
+p3
 
 ```
 
@@ -146,11 +147,16 @@ Approximately, 1/5 of the subjects identify as gay/lesbian/bi.
 
 kable(summary(df$SAME_SEX_COUPLE)) %>% kable_styling(font_size = 14)
 
-ggplot(df, aes(SAME_SEX_COUPLE)) + geom_bar() + theme_bw() + xlab("Same Sex Couple") + ylab("Count") + theme(legend.position = "bottom")
+p4 <- ggplot(df, aes(SAME_SEX_COUPLE)) + geom_bar() + theme_bw() + xlab("Same Sex Couple") + ylab("Count") + theme(legend.position = "bottom")
 
 ```
 
 There are 474 same sex couples (approximately 15%)
+
+
+```{r}
+grid.arrange(p3, p4, ncol = 2)
+```
 
 5. Age
 
@@ -231,7 +237,7 @@ The distribution is close to normal with some outliers at the high end.
 ```{r housing}
 kable(summary(df$PPHOUSE)) %>% kable_styling()
 
-ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+ggplot(df, aes(PPHOUSE)) + geom_bar() + theme_bw() + xlab("Housing") + coord_flip()
 ```
 
 Most of the subjects live in a one family house.
@@ -241,7 +247,7 @@ Most of the subjects live in a one family house.
 ```{r rent}
 kable(summary(df$PPRENT)) %>% kable_styling()
 
-ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Household Income") + coord_flip()
+ggplot(df, aes(PPRENT)) + geom_bar() + theme_bw() + xlab("Rent") + coord_flip()
 ```
 
 Most of the subjects own the house they live in.
@@ -251,7 +257,7 @@ Most of the subjects own the house they live in.
 ```{r marital-status}
 kable(summary(df$PPMARIT)) %>% kable_styling()
 
-ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Household Income") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggplot(df, aes(PPMARIT)) + geom_bar() + theme_bw() + xlab("Marital Status") + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 Most of the subjects are married.
