@@ -10,6 +10,8 @@ df = read.csv("cleaned_df.csv")
 df$relationship_val <- as.numeric(substr(df$RELATIONSHIP_QUALITY, 2, 2))
 df = df[c('relationship_val', 'diff_in_education', 'RESPONDENT_YRSED', 'PARTNER_YRSED')]
 df = na.omit(df) 
+library(gplots)
+library(ggplot2)
 ```
 
 ```{r}
@@ -32,6 +34,9 @@ summary(df$diff_in_education)
 ## T-test
 
 ```{r}
+length(df$relationship_val[df$diff_in_education != 0])
+length(df$relationship_val[df$diff_in_education == 0])
+
 mean(df$relationship_val[df$diff_in_education != 0])
 mean(df$relationship_val[df$diff_in_education == 0])
 
@@ -47,6 +52,22 @@ model1 <- t.test(ed_difference, no_ed_difference, var.equal = FALSE)
 model1
 ```
 
+
+```{r}
+
+df$same_diff_ed[df$diff_in_education != 0] = 'Different Education'
+df$same_diff_ed[df$diff_in_education == 0] = 'Same Education'
+
+plotmeans(relationship_val ~ same_diff_ed, 
+          data = df, 
+          xlab = "Education Categories", 
+          ylab = "Relationship Quality",
+          barcol = "lightgray",
+          mean.labels = FALSE,
+          connect = FALSE,
+          n.label = FALSE,
+          main="Mean Relationship Quality vs. Education Categories") 
+```
 
 
 
@@ -93,14 +114,37 @@ plot(fit)
 
 
 ```{r}
-df$respondent_vs_partner = df$diff_in_education
+
+
+
+df$diff_in_education = df$RESPONDENT_YRSED - df$PARTNER_YRSED
+df$respondent_vs_partner = ''
 
 df$respondent_vs_partner[df$diff_in_education < 0] = 'partner' 
 df$respondent_vs_partner[df$diff_in_education > 0] = 'respondent'
 df$respondent_vs_partner[df$diff_in_education == 0] = 'same_ed'
 
+
+
+
+
+
+
 barplot(prop.table(table(df$respondent_vs_partner)))
 ```
+
+```{r}
+plotmeans(relationship_val ~ respondent_vs_partner, 
+          data = df, 
+          xlab = "Education Categories", 
+          ylab = "Relationship Quality",
+          barcol = "lightgray",
+          mean.labels = FALSE,
+          connect = FALSE,
+          n.label = FALSE,
+          main="Mean Relationship Quality vs. Education Categories") 
+```
+
 
 ```{r}
 fit = aov(relationship_val ~ factor(respondent_vs_partner), data=df)
@@ -108,23 +152,59 @@ summary(fit)
 ```
 
 ```{r}
+partner <- df$relationship_val[df$respondent_vs_partner == 'partner']
+respondent <- df$relationship_val[df$respondent_vs_partner == 'respondent']
+same_ed <- df$relationship_val[df$respondent_vs_partner == 'same_ed']
+
+p_samp <- sample(partner, 900, replace = FALSE, prob = NULL)
+r_samp <- sample(respondent, 900, replace = FALSE, prob = NULL)
+s_samp <- sample(same_ed, 900, replace = FALSE, prob = NULL)
+
+t.test(p_samp,r_samp,paired=T)
+t.test(p_samp,s_samp,paired=T)
+t.test(r_samp,s_samp,paired=T)
+```
+
+
+
+
+
+
+```{r}
+m=tapply(df$relationship_val,df$respondent_vs_partner,mean)[tapply(df$relationship_val,df$respondent_vs_partner)]
+#summary(fit$residuals)
+df$Residual = df$relationship_val - m
+boxplot(Residual ~ respondent_vs_partner, data=df)
+```
+
+
+
+```{r}
+
+
 plot(fit)
 
 ```
 
 
-
 ```{r}
-var(df[df$respondent_vs_partner == 'partner',]$relationship_val)
-var(df[df$respondent_vs_partner == 'respondent',]$relationship_val)
-var(df[df$respondent_vs_partner == 'same_ed',]$relationship_val)
+length(df[df$respondent_vs_partner == 'same_ed',]$relationship_val)
+length(df[df$respondent_vs_partner == 'partner',]$relationship_val)
+length(df[df$respondent_vs_partner == 'respondent',]$relationship_val)
 ```
 
 
 ```{r}
+var(df[df$respondent_vs_partner == 'same_ed',]$relationship_val)
+var(df[df$respondent_vs_partner == 'partner',]$relationship_val)
+var(df[df$respondent_vs_partner == 'respondent',]$relationship_val)
+```
+
+
+```{r}
+mean(df$relationship_val[df$respondent_vs_partner == 'same_ed'])
 mean(df$relationship_val[df$respondent_vs_partner == 'partner'])
 mean(df$relationship_val[df$respondent_vs_partner == 'respondent'])
-mean(df$relationship_val[df$respondent_vs_partner == 'same_ed'])
 ```
 
 
